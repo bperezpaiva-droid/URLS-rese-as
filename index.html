@@ -20,6 +20,7 @@
 
 <style>
   :root{
+    color-scheme: light;   /* fuerza tema claro en los componentes de Google */
     --paper:#faf7f2;
     --paper-2:#ffffff;
     --ink:#1b1815;
@@ -163,7 +164,21 @@
   }
 
   .hide{display:none}
-  gmp-place-autocomplete{width:100%}
+
+  /* buscador de Google integrado con el tema claro */
+  gmp-place-autocomplete{
+    width:100%;
+    --gmp-mat-color-surface:#faf7f2;
+    --gmp-mat-color-on-surface:#1b1815;
+    --gmp-mat-color-on-surface-variant:#6f6659;
+    --gmp-mat-color-outline:#d6cec1;
+    --gmp-mat-color-primary:#b4462d;
+    --gmp-mat-color-info:#b4462d;
+    --gmp-mat-color-neutral-container:#fff;
+    --gmp-mat-color-surface-container-highest:#fff;
+    border-radius:11px;
+    overflow:hidden;
+  }
 
   footer{
     text-align:center;color:var(--ink-3);font-size:11.5px;
@@ -246,7 +261,7 @@
    Vacia = modo manual, sin llamadas externas.
    Restringe la clave por referrer a tu dominio de GitHub Pages.
    ============================================================ */
-var GOOGLE_KEY = "AIzaSyBpnbHDF0xAXs6xGnN5q16UThq7MPXVP3Q";
+var GOOGLE_KEY = "";
 
 (function(){
   var BASE = "https://search.google.com/local/writereview?placeid=";
