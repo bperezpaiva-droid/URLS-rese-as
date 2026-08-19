@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#faf7f2">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Reseñas">
+<title>Generador de enlaces de reseña</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --paper:#faf7f2;
+    --paper-2:#ffffff;
+    --ink:#1b1815;
+    --ink-2:#6f6659;
+    --ink-3:#a89e91;
+    --line:#e6dfd4;
+    --line-2:#d6cec1;
+    --accent:#b4462d;
+    --accent-soft:#f6e9e4;
+    --ok:#2f6f4e;
+    --radius:16px;
+    --shadow:0 1px 2px rgba(27,24,21,.04), 0 8px 24px rgba(27,24,21,.05);
+  }
+
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font:16px/1.55 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding:28px 18px calc(40px + env(safe-area-inset-bottom));
+    max-width:620px;
+    margin-inline:auto;
+  }
+
+  /* ---------- cabecera editorial ---------- */
+  header{margin-bottom:26px}
+  .eyebrow{
+    font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--ink-3);margin-bottom:10px
+  }
+  h1{
+    font-family:"Instrument Serif",Georgia,serif;
+    font-weight:400;font-size:clamp(34px,9vw,46px);
+    line-height:1.02;letter-spacing:-.01em;margin:0
+  }
+  h1 em{font-style:italic;color:var(--accent)}
+  .lede{color:var(--ink-2);font-size:14.5px;margin-top:12px;max-width:44ch}
+  .rule{height:1px;background:var(--line);margin:24px 0 22px}
+
+  /* ---------- tarjetas ---------- */
+  .card{
+    background:var(--paper-2);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:20px;
+    margin-bottom:16px;
+    box-shadow:var(--shadow);
+  }
+  .card-title{
+    font-family:"Instrument Serif",Georgia,serif;
+    font-size:21px;margin:0 0 2px
+  }
+  .card-sub{color:var(--ink-2);font-size:13px;margin-bottom:16px}
+
+  label{
+    display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--ink-3);margin-bottom:8px
+  }
+
+  input[type=text]{
+    width:100%;padding:14px 15px;
+    border:1px solid var(--line-2);border-radius:11px;
+    background:var(--paper);color:var(--ink);
+    font:16px/1.4 inherit;outline:none;
+    transition:border-color .18s ease, background .18s ease;
+  }
+  input[type=text]::placeholder{color:var(--ink-3)}
+  input[type=text]:focus{border-color:var(--accent);background:#fff}
+
+  button{
+    width:100%;padding:15px 16px;border:0;border-radius:11px;
+    background:var(--ink);color:var(--paper);
+    font:600 15px/1 inherit;letter-spacing:.01em;
+    margin-top:12px;cursor:pointer;
+    transition:transform .12s ease, opacity .18s ease, background .18s ease;
+  }
+  button:active{transform:scale(.985);opacity:.9}
+  button.ghost{background:transparent;color:var(--ink);border:1px solid var(--line-2)}
+  button.ghost:hover{background:var(--paper)}
+  button.accent{background:var(--accent)}
+  button.quiet{background:var(--accent-soft);color:var(--accent)}
+
+  .row{display:flex;gap:10px}
+  .row button{flex:1}
+
+  /* ---------- resultado ---------- */
+  #result{border-color:var(--line-2)}
+  .biz{
+    font-family:"Instrument Serif",Georgia,serif;
+    font-size:23px;line-height:1.15;margin-bottom:2px
+  }
+  .addr{color:var(--ink-2);font-size:13px;margin-bottom:16px}
+
+  .out{
+    word-break:break-all;
+    background:var(--paper);
+    border:1px dashed var(--line-2);
+    border-radius:11px;padding:13px 14px;
+    font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;
+    color:var(--ink-2);
+  }
+
+  #qrbox{display:flex;justify-content:center;margin:18px 0 4px}
+  #qrbox img,#qrbox canvas{
+    background:#fff;padding:14px;border-radius:14px;
+    border:1px solid var(--line);
+  }
+
+  .hint{font-size:12.5px;color:var(--ink-3);margin-top:12px;line-height:1.5}
+
+  .tag{
+    display:inline-block;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+    padding:5px 10px;border-radius:99px;
+    background:var(--accent-soft);color:var(--accent);
+    margin-bottom:14px
+  }
+  .tag.neutral{background:var(--paper);color:var(--ink-3);border:1px solid var(--line)}
+
+  /* ---------- lista de ruta ---------- */
+  .item{
+    display:flex;align-items:baseline;gap:10px;
+    border-top:1px solid var(--line);padding:14px 0;
+  }
+  .item:first-of-type{border-top:0;padding-top:4px}
+  .item .n{
+    font-family:"Instrument Serif",Georgia,serif;
+    color:var(--ink-3);font-size:15px;min-width:22px
+  }
+  .item .body{flex:1;min-width:0}
+  .item b{display:block;font-weight:600;font-size:14.5px}
+  .item .meta{color:var(--ink-3);font-size:12px;margin-top:1px}
+  .item a{color:var(--accent);font-size:12px;text-decoration:none;margin-right:12px}
+  .item a:hover{text-decoration:underline}
+
+  .count{
+    font-family:"Instrument Serif",Georgia,serif;
+    font-size:19px;color:var(--ink)
+  }
+
+  .hide{display:none}
+  gmp-place-autocomplete{width:100%}
+
+  footer{
+    text-align:center;color:var(--ink-3);font-size:11.5px;
+    margin-top:28px;letter-spacing:.03em
+  }
+
+  .fade{animation:fade .5s ease both}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Herramienta interna</div>
+  <h1>Enlaces de <em>reseña</em></h1>
+  <p class="lede">Busca el negocio, saca el enlace directo al formulario de Google y su código QR. Todo se genera en este móvil.</p>
+</header>
+
+<div class="rule"></div>
+
+<!-- ================= BUSCADOR ================= -->
+<div class="card">
+  <span class="tag neutral" id="modeBadge">Modo manual</span>
+  <div class="card-title">Nuevo negocio</div>
+  <div class="card-sub">Un enlace distinto por cada local. Nunca reutilices uno.</div>
+
+  <div id="autoWrap" class="hide">
+    <label>Buscar</label>
+    <div id="acHolder"></div>
+    <div class="hint">Escribe nombre y ciudad. Elige el resultado exacto: comprueba la dirección antes de generar.</div>
+  </div>
+
+  <div id="manualWrap">
+    <label>Place ID</label>
+    <input type="text" id="manual" placeholder="ChIJ…" autocapitalize="off" autocorrect="off" spellcheck="false">
+    <button onclick="fromManual()">Generar enlace</button>
+    <div class="hint">Sin clave de Google configurada, se pega el Place ID a mano. También acepta una URL que contenga <code>placeid=</code>.</div>
+  </div>
+</div>
+
+<!-- ================= RESULTADO ================= -->
+<div class="card hide" id="result">
+  <span class="tag">Listo</span>
+  <div class="biz" id="bizName"></div>
+  <div class="addr" id="bizAddr"></div>
+
+  <div class="out" id="linkOut"></div>
+
+  <div class="row">
+    <button onclick="copyLink()" id="copyBtn">Copiar enlace</button>
+    <button class="ghost" onclick="openLink()">Probar</button>
+  </div>
+
+  <div id="qrbox"></div>
+
+  <div class="row">
+    <button class="ghost" onclick="downloadQR()">Descargar QR</button>
+    <button class="quiet" onclick="saveItem()">Guardar en la ruta</button>
+  </div>
+</div>
+
+<!-- ================= RUTA ================= -->
+<div class="card">
+  <div class="card-title">Ruta guardada <span class="count">· <span id="count">0</span></span></div>
+  <div class="card-sub">Se guarda en este móvil. Exporta el CSV y pégalo en tu hoja.</div>
+  <div id="list"></div>
+  <div class="row">
+    <button class="ghost" onclick="exportCSV()">Exportar CSV</button>
+    <button class="ghost" onclick="clearAll()">Vaciar</button>
+  </div>
+</div>
+
+<footer>Los enlaces ya grabados siguen funcionando aunque esta página desaparezca.</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+<script defer>
+/* ============================================================
+   CONFIGURACION
+   Pon tu clave de Google Maps aqui para activar el buscador.
+   Vacia = modo manual, sin llamadas externas.
+   Restringe la clave por referrer a tu dominio de GitHub Pages.
+   ============================================================ */
+var GOOGLE_KEY = "";
+
+(function(){
+  var BASE = "https://search.google.com/local/writereview?placeid=";
+  var current = null;
+
+  function $(id){ return document.getElementById(id); }
+
+  function build(id, name, addr){
+    id = (id||"").trim();
+    if(!id){ alert("Falta el Place ID"); return; }
+    current = { name:name||"", addr:addr||"", id:id, url:BASE+id };
+
+    $("bizName").textContent = current.name || "Negocio";
+    $("bizAddr").textContent = current.addr || "Comprueba que es el local correcto";
+    $("linkOut").textContent = current.url;
+
+    var r = $("result");
+    r.classList.remove("hide");
+    r.classList.remove("fade"); void r.offsetWidth; r.classList.add("fade");
+    $("copyBtn").textContent = "Copiar enlace";
+
+    var box = $("qrbox");
+    box.innerHTML = "";
+    try{
+      new QRCode(box, { text: current.url, width: 208, height: 208, correctLevel: QRCode.CorrectLevel.M });
+    }catch(e){ console.error(e); }
+
+    r.scrollIntoView({ behavior:"smooth", block:"start" });
+  }
+
+  window.fromManual = function(){
+    var v = $("manual").value.trim();
+    var m = v.match(/placeid=([^&\s]+)/i);
+    if(m) v = m[1];
+    build(v, "", "");
+  };
+
+  window.copyLink = function(){
+    if(!current) return;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(current.url).then(function(){
+        $("copyBtn").textContent = "Copiado";
+        setTimeout(function(){ $("copyBtn").textContent = "Copiar enlace"; }, 1500);
+      }).catch(function(){ prompt("Copia el enlace:", current.url); });
+    } else {
+      prompt("Copia el enlace:", current.url);
+    }
+  };
+
+  window.openLink = function(){ if(current) window.open(current.url, "_blank"); };
+
+  window.downloadQR = function(){
+    var c = document.querySelector("#qrbox canvas");
+    if(!c) return;
+    var a = document.createElement("a");
+    var base = (current.name || "qr").replace(/[^\w\s-]/g,"").trim().replace(/\s+/g,"-");
+    a.download = (base || "qr") + ".png";
+    a.href = c.toDataURL("image/png");
+    a.click();
+  };
+
+  /* ---------- ruta ---------- */
+  function load(){ try{ return JSON.parse(localStorage.getItem("ruta")||"[]"); }catch(e){ return []; } }
+  function store(a){ localStorage.setItem("ruta", JSON.stringify(a)); render(); }
+
+  window.saveItem = function(){
+    if(!current) return;
+    var a = load();
+    for(var i=0;i<a.length;i++){ if(a[i].id===current.id){ alert("Ese negocio ya está en la ruta."); return; } }
+    a.push({ name:current.name, addr:current.addr, id:current.id, url:current.url,
+             fecha:new Date().toISOString().slice(0,10) });
+    store(a);
+  };
+
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+
+  function render(){
+    var a = load();
+    $("count").textContent = a.length;
+    var el = $("list");
+    if(!a.length){
+      el.innerHTML = '<div class="hint">Todavía no has guardado ningún local.</div>';
+      return;
+    }
+    el.innerHTML = a.map(function(x,i){
+      return '<div class="item">'+
+        '<div class="n">'+(i+1)+'</div>'+
+        '<div class="body">'+
+          '<b>'+esc(x.name||"(sin nombre)")+'</b>'+
+          '<div class="meta">'+esc(x.addr||x.id)+'</div>'+
+          '<div style="margin-top:6px">'+
+            '<a href="'+x.url+'" target="_blank" rel="noopener">abrir</a>'+
+            '<a href="#" onclick="del('+i+');return false;">borrar</a>'+
+          '</div>'+
+        '</div></div>';
+    }).join("");
+  }
+
+  window.del = function(i){ var a=load(); a.splice(i,1); store(a); };
+  window.clearAll = function(){ if(confirm("¿Vaciar la ruta guardada?")) store([]); };
+
+  window.exportCSV = function(){
+    var a = load();
+    if(!a.length){ alert("No hay nada que exportar."); return; }
+    var rows = [["Fecha","Local","Direccion","Place ID","URL resena"]];
+    a.forEach(function(x){ rows.push([x.fecha,x.name,x.addr,x.id,x.url]); });
+    var csv = rows.map(function(r){
+      return r.map(function(v){ return '"'+String(v==null?"":v).replace(/"/g,'""')+'"'; }).join(",");
+    }).join("\n");
+    var blob = new Blob(["﻿"+csv], {type:"text/csv;charset=utf-8"});
+    var a2 = document.createElement("a");
+    a2.href = URL.createObjectURL(blob);
+    a2.download = "ruta.csv";
+    a2.click();
+  };
+
+  /* ---------- buscador opcional ---------- */
+  function initAutocomplete(){
+    if(!GOOGLE_KEY) return;
+    var s = document.createElement("script");
+    s.src = "https://maps.googleapis.com/maps/api/js?key="+GOOGLE_KEY+
+            "&libraries=places&v=weekly&language=es&region=ES";
+    s.async = true;
+    s.onload = function(){
+      google.maps.importLibrary("places").then(function(lib){
+        var el = new lib.PlaceAutocompleteElement({ includedRegionCodes:["es"] });
+        $("acHolder").appendChild(el);
+        el.addEventListener("gmp-select", function(ev){
+          var p = ev.placePrediction.toPlace();
+          p.fetchFields({ fields:["displayName","formattedAddress","id"] }).then(function(){
+            build(p.id, p.displayName, p.formattedAddress);
+          });
+        });
+        $("autoWrap").classList.remove("hide");
+        $("manualWrap").classList.add("hide");
+        var b = $("modeBadge");
+        b.textContent = "Buscador activo";
+        b.className = "tag";
+      }).catch(function(err){
+        console.error(err);
+        $("modeBadge").textContent = "Buscador no disponible";
+      });
+    };
+    s.onerror = function(){ $("modeBadge").textContent = "Buscador no disponible"; };
+    document.head.appendChild(s);
+  }
+
+  render();
+  initAutocomplete();
+})();
+</script>
+</body>
+</html>
